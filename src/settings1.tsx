@@ -1,12 +1,17 @@
 import React from 'react'
-import { Graph } from '@antv/x6'
-import { Input, Select, Checkbox, Slider, Row, Col, Tabs } from 'antd'
+import { Graph,Dom, Addon } from '@antv/x6'
+import { Input, Select,Checkbox, Slider, Row, Col, Tabs  } from 'antd'
 import 'antd/dist/antd.css'
+const { Dnd } = Addon
 const { TabPane } = Tabs;
 export interface GridProps {
   onGridSizeChange: (size: number) => void
-  onBackgroundChanged: (res: any) => void
-  onTypeChange: (res: Graph.BackgroundManager.Options | any) => void
+  onBackgroundChanged:(res:any) => void
+  onChange: (res: Graph.BackgroundManager.Options | any) => void
+}
+export interface AddProps {
+  refContainer: HTMLElement
+  // refContainer: (container: HTMLDivElement) => void
 }
 export interface State {
   type: string
@@ -31,7 +36,7 @@ export class Settings extends React.Component<GridProps, State> {
     type: 'dot',
     size: 10,
     color: '#aaaaaa',
-    bgColor: '#aaaaaa',
+    bgColor:'#aaaaaa',
     thickness: 1,
     colorSecond: '#888888',
     thicknessSecond: 3,
@@ -42,15 +47,10 @@ export class Settings extends React.Component<GridProps, State> {
     opacity: 1,
     angle: 20,
   }
-  /**
-   * @type dot (默认值) | fixedDot | mesh | doubleMesh 
-   * @params args[{主网格},{次网格}]
-   */
-
-  // 绘制网格
-  gridChange() {
+  
+  notifyChange() {
     if (this.state.type === 'doubleMesh') {
-      this.props.onTypeChange({
+      this.props.onChange({
         type: this.state.type,
         args: [
           {
@@ -65,7 +65,7 @@ export class Settings extends React.Component<GridProps, State> {
         ],
       })
     } else {
-      this.props.onTypeChange({
+      this.props.onChange({
         type: this.state.type,
         args: [
           {
@@ -76,113 +76,121 @@ export class Settings extends React.Component<GridProps, State> {
       })
     }
   }
-  // 网格类型 
+
   onTypeChanged = (type: string) => {
     this.setState({ type }, () => {
-      this.gridChange()
+      this.notifyChange()
     })
   }
-  // 网格大小
+
   onSizeChanged = (size: number) => {
     this.setState({ size }, () => {
-      this.props.onGridSizeChange(size)
+      this.props.onGridSizeChange(this.state.size)
     })
   }
-  // 修改主网格线颜色
-  onGridColorChanged = (e: any) => {
+
+  onColorChanged = (e: any) => {
     this.setState({ color: e.target.value }, () => {
-      this.gridChange()
+      this.notifyChange()
     })
   }
-  // 修改次网格线颜色
+
   onSecondaryColorChanged = (e: any) => {
-    console.log(e.target.value)
     this.setState({ colorSecond: e.target.value }, () => {
-      this.gridChange()
+      this.notifyChange()
     })
   }
-  // 修改主网格线条宽度
+
   onThicknessChanged = (thickness: number) => {
     this.setState({ thickness }, () => {
-      this.gridChange()
+      this.notifyChange()
     })
   }
-  // 修改次网格线条宽度
+
   onSecondaryThicknessChanged = (thicknessSecond: number) => {
     this.setState({ thicknessSecond }, () => {
-      this.gridChange()
+      this.notifyChange()
     })
   }
-  // 修改主次网格间隙
+
   onFactorChanged = (factor: number) => {
     this.setState({ factor }, () => {
-      this.gridChange()
+      this.notifyChange()
     })
   }
-  // 网格与背景控制面板切换
-  changeTabs = (key: string): void => {
+  changeTabs = (key:string):void => {
     console.log(key);
   }
 
-// 修改背景颜色
-  backGroundChange() {
+
+
+  tryToJSON(val: string) {
+    try {
+      return JSON.parse(val)
+    } catch (error) {
+      return val
+    }
+  }
+
+  bgNotifyChange() {
     const { showImage, size, position, ...state } = this.state
+    
     this.props.onBackgroundChanged({
       ...state,
       color: this.state.bgColor,
       image: showImage ? bgImageDataURL : undefined,
-      size: size,
-      position: position,
+      size: this.tryToJSON(size),
+      position: this.tryToJSON(position),
     })
   }
-  // 更新背景颜色
-  updateBackGround = (e: any) => {
+
+  bgonColorChanged = (e: any) => {
     this.setState({ bgColor: e.target.value }, () => {
-      this.backGroundChange()
+      this.bgNotifyChange()
     })
   }
-  // 显示隐藏背景图片
+
   onShowImageChanged = (e: any) => {
     this.setState({ showImage: e.target.checked }, () => {
-      this.backGroundChange()
+      this.bgNotifyChange()
     })
   }
-  // 图片重复类型设置
+
   onRepeatChanged = (repeat: string) => {
     this.setState({ repeat }, () => {
-      this.backGroundChange()
+      this.bgNotifyChange()
     })
   }
-// 背景图片位置设置
+
   onPositionChanged = (position: string) => {
     this.setState({ position }, () => {
-      this.backGroundChange()
+      this.bgNotifyChange()
     })
   }
-// 背景图片大小设置
+
   bgonSizeChanged = (size: string) => {
     this.setState({ size }, () => {
-      this.backGroundChange()
+      this.bgNotifyChange()
     })
   }
-// 背景透明度设置
+
   onOpacityChanged = (opacity: number) => {
     this.setState({ opacity }, () => {
-      this.backGroundChange()
+      this.bgNotifyChange()
     })
   }
-  // 水印旋转角度
+
   onWaterAngleChanged = (angle: number) => {
     this.setState({ angle }, () => {
-      this.backGroundChange()
+      this.bgNotifyChange()
     })
   }
   render() {
     return (
-      <Tabs style={{ width: 320, height: 100 + "vh" }} defaultActiveKey="2" onChange={this.changeTabs}>
-        <TabPane tab="网格" key="1">
+    <Tabs style={{ width: 320,height:100+"vh" }} defaultActiveKey="1" onChange={this.changeTabs}>
+      <TabPane tab="网格" key="1">
           <Row align="middle">
-            <Col span={8}>网格类型</Col>
+            <Col span={8}>Grid Type</Col>
             <Col span={13}>
               <Select
                 style={{ width: '100%' }}
@@ -197,7 +205,7 @@ export class Settings extends React.Component<GridProps, State> {
             </Col>
           </Row>
           <Row align="middle">
-            <Col span={8}>网格大小</Col>
+            <Col span={8}>Grid Size</Col>
             <Col span={13}>
               <Slider
                 min={1}
@@ -214,18 +222,18 @@ export class Settings extends React.Component<GridProps, State> {
           {this.state.type === 'doubleMesh' ? (
             <React.Fragment>
               <Row align="middle">
-                <Col span={8}>主网格颜色</Col>
+                <Col span={8}>Primary Color</Col>
                 <Col span={13}>
                   <Input
                     type="color"
                     value={this.state.color}
                     style={{ width: '100%' }}
-                    onChange={this.onGridColorChanged}
+                    onChange={this.onColorChanged}
                   />
                 </Col>
               </Row>
               <Row align="middle">
-                <Col span={8}>主网格宽度</Col>
+                <Col span={8}>Primary Thickness</Col>
                 <Col span={13}>
                   <Slider
                     min={0.5}
@@ -242,7 +250,7 @@ export class Settings extends React.Component<GridProps, State> {
                 </Col>
               </Row>
               <Row align="middle">
-                <Col span={8}>次网格颜色</Col>
+                <Col span={8}>Secondary Color</Col>
                 <Col span={13}>
                   <Input
                     type="color"
@@ -253,7 +261,7 @@ export class Settings extends React.Component<GridProps, State> {
                 </Col>
               </Row>
               <Row align="middle">
-                <Col span={8}>次网格宽度</Col>
+                <Col span={8}>Secondary Thickness</Col>
                 <Col span={13}>
                   <Slider
                     min={0.5}
@@ -270,7 +278,7 @@ export class Settings extends React.Component<GridProps, State> {
                 </Col>
               </Row>
               <Row align="middle">
-                <Col span={8}>主次网格间隙</Col>
+                <Col span={8}>Scale Factor</Col>
                 <Col span={13}>
                   <Slider
                     min={1}
@@ -288,18 +296,18 @@ export class Settings extends React.Component<GridProps, State> {
           ) : (
             <React.Fragment>
               <Row align="middle">
-                <Col span={8}>网格线颜色</Col>
+                <Col span={8}>Grid Color</Col>
                 <Col span={13}>
                   <Input
                     type="color"
                     value={this.state.color}
                     style={{ width: '100%' }}
-                    onChange={this.onGridColorChanged}
+                    onChange={this.onColorChanged}
                   />
                 </Col>
               </Row>
               <Row align="middle">
-                <Col span={8}>网格线宽度</Col>
+                <Col span={8}>Thickness</Col>
                 <Col span={13}>
                   <Slider
                     min={0.5}
@@ -319,132 +327,289 @@ export class Settings extends React.Component<GridProps, State> {
           )}
         </TabPane>
         <TabPane tab="背景" key="2">
-          {/* 背景设置 */}
-          <Row align="middle">
-            <Col span={6}>颜色</Col>
-            <Col span={14}>
-              <Input
-                type="color"
-                value={this.state.bgColor}
-                style={{ width: '100%' }}
-                onChange={this.updateBackGround}
-              />
-            </Col>
-          </Row>
-          <Row align="middle">
-            <Col span={18} offset={6}>
-              <Checkbox
-                checked={this.state.showImage}
-                onChange={this.onShowImageChanged}
-              >
-                显示背景图片
+        {/* 背景设置 */}
+        <Row align="middle">
+          <Col span={6}>Color</Col>
+          <Col span={14}>
+            <Input
+              type="color"
+              value={this.state.bgColor}
+              style={{ width: '100%' }}
+              onChange={this.bgonColorChanged}
+            />
+          </Col>
+        </Row>
+        <Row align="middle">
+          <Col span={18} offset={6}>
+            <Checkbox
+              checked={this.state.showImage}
+              onChange={this.onShowImageChanged}
+            >
+              Show Background Image
             </Checkbox>
-            </Col>
-          </Row>
-          {this.state.showImage && (
-            <React.Fragment>
+          </Col>
+        </Row>
+        {this.state.showImage && (
+          <React.Fragment>
+            <Row align="middle">
+              <Col span={6}>Repeat</Col>
+              <Col span={14}>
+                <Select
+                  style={{ width: '100%' }}
+                  value={this.state.repeat}
+                  onChange={this.onRepeatChanged}
+                >
+                  <Select.Option value="no-repeat">no repeat</Select.Option>
+                  <Select.Option value="repeat">repeat</Select.Option>
+                  <Select.Option value="repeat-x">repeat x</Select.Option>
+                  <Select.Option value="repeat-y">repeat y</Select.Option>
+                  <Select.Option value="round">round</Select.Option>
+                  <Select.Option value="space">space</Select.Option>
+                  <Select.Option value="flipX">flip x</Select.Option>
+                  <Select.Option value="flipY">flip y</Select.Option>
+                  <Select.Option value="flipXY">flip xy</Select.Option>
+                  <Select.Option value="watermark">watermark</Select.Option>
+                </Select>
+              </Col>
+            </Row>
+            {this.state.repeat === 'watermark' && (
               <Row align="middle">
-                <Col span={6}>重复</Col>
-                <Col span={14}>
-                  <Select
-                    style={{ width: '100%' }}
-                    value={this.state.repeat}
-                    onChange={this.onRepeatChanged}
-                  >
-                    <Select.Option value="no-repeat">不重复</Select.Option>
-                    <Select.Option value="repeat">重复</Select.Option>
-                    <Select.Option value="repeat-x">X 轴重复</Select.Option>
-                    <Select.Option value="repeat-y">Y 轴重复</Select.Option>
-                    <Select.Option value="round">缩放背景图至容器大小</Select.Option>
-                    <Select.Option value="space">不产生缩放(图片会被裁剪)</Select.Option>
-                    <Select.Option value="flipX">水平翻转背景图片</Select.Option>
-                    <Select.Option value="flipY">垂直翻转背景图片</Select.Option>
-                    <Select.Option value="flipXY">水平和垂直翻转背景图片</Select.Option>
-                    <Select.Option value="watermark">水印效果</Select.Option>
-                  </Select>
+                <Col span={16} offset={6} style={{ fontSize: 12 }}>
+                  Watermark Angle
                 </Col>
-              </Row>
-              {this.state.repeat === 'watermark' && (
-                <Row align="middle">
-                  <Col span={16} offset={6} style={{ fontSize: 12 }}>
-                  水印旋转角度
-                </Col>
-                  <Col span={14} offset={6}>
-                    <Slider
-                      min={0}
-                      max={360}
-                      step={1}
-                      value={this.state.angle}
-                      onChange={this.onWaterAngleChanged}
-                    />
-                  </Col>
-                  <Col span={2}>
-                    <div className="slider-value">{this.state.angle}</div>
-                  </Col>
-                </Row>
-              )}
-              <Row align="middle">
-                <Col span={6}>位置</Col>
-                <Col span={14}>
-                  <Select
-                    style={{ width: '100%' }}
-                    value={this.state.position}
-                    onChange={this.onPositionChanged}
-                  >
-                    <Select.Option value="center">center</Select.Option>
-                    <Select.Option value="left">left</Select.Option>
-                    <Select.Option value="right">right</Select.Option>
-                    <Select.Option value="top">top</Select.Option>
-                    <Select.Option value="bottom">bottom</Select.Option>
-                    <Select.Option value="50px 50px">50px 50px</Select.Option>
-                    <Select.Option value={JSON.stringify({ x: 50, y: 50 })}>
-                      {`{ x: 50, y: 50 }`}
-                    </Select.Option>
-                  </Select>
-                </Col>
-              </Row>
-              <Row align="middle">
-                <Col span={6}>大小</Col>
-                <Col span={14}>
-                  <Select
-                    style={{ width: '100%' }}
-                    value={this.state.size}
-                    onChange={this.bgonSizeChanged}
-                  >
-                    <Select.Option value="auto auto">auto auto</Select.Option>
-                    <Select.Option value="cover">cover</Select.Option>
-                    <Select.Option value="contain">contain</Select.Option>
-                    <Select.Option value="30px 30px">30px 30px</Select.Option>
-                    <Select.Option value="100% 100%">100% 100%</Select.Option>
-                    <Select.Option
-                      value={JSON.stringify({ width: 50, height: 50 })}
-                    >
-                      {`{width: 50, height: 50 }`}
-                    </Select.Option>
-                  </Select>
-                </Col>
-              </Row>
-              <Row align="middle">
-                <Col span={6}>透明度</Col>
-                <Col span={14}>
+                <Col span={14} offset={6}>
                   <Slider
-                    min={0.05}
-                    max={1}
-                    step={0.05}
-                    value={this.state.opacity}
-                    onChange={this.onOpacityChanged}
+                    min={0}
+                    max={360}
+                    step={1}
+                    value={this.state.angle}
+                    onChange={this.onWaterAngleChanged}
                   />
                 </Col>
                 <Col span={2}>
-                  <div className="slider-value">
-                    {this.state.opacity.toFixed(2)}
-                  </div>
+                  <div className="slider-value">{this.state.angle}</div>
                 </Col>
               </Row>
-            </React.Fragment>
-          )}
-        </TabPane>
-      </Tabs>
+            )}
+            <Row align="middle">
+              <Col span={6}>Position</Col>
+              <Col span={14}>
+                <Select
+                  style={{ width: '100%' }}
+                  value={this.state.position}
+                  onChange={this.onPositionChanged}
+                >
+                  <Select.Option value="center">center</Select.Option>
+                  <Select.Option value="left">left</Select.Option>
+                  <Select.Option value="right">right</Select.Option>
+                  <Select.Option value="top">top</Select.Option>
+                  <Select.Option value="bottom">bottom</Select.Option>
+                  <Select.Option value="50px 50px">50px 50px</Select.Option>
+                  <Select.Option value={JSON.stringify({ x: 50, y: 50 })}>
+                    {`{ x: 50, y: 50 }`}
+                  </Select.Option>
+                </Select>
+              </Col>
+            </Row>
+            <Row align="middle">
+              <Col span={6}>Size</Col>
+              <Col span={14}>
+                <Select
+                  style={{ width: '100%' }}
+                  value={this.state.size}
+                  onChange={this.bgonSizeChanged}
+                >
+                  <Select.Option value="auto auto">auto auto</Select.Option>
+                  <Select.Option value="cover">cover</Select.Option>
+                  <Select.Option value="contain">contain</Select.Option>
+                  <Select.Option value="30px 30px">30px 30px</Select.Option>
+                  <Select.Option value="100% 100%">100% 100%</Select.Option>
+                  <Select.Option
+                    value={JSON.stringify({ width: 50, height: 50 })}
+                  >
+                    {`{width: 50, height: 50 }`}
+                  </Select.Option>
+                </Select>
+              </Col>
+            </Row>
+            <Row align="middle">
+              <Col span={6}>Opacity</Col>
+              <Col span={14}>
+                <Slider
+                  min={0.05}
+                  max={1}
+                  step={0.05}
+                  value={this.state.opacity}
+                  onChange={this.onOpacityChanged}
+                />
+              </Col>
+              <Col span={2}>
+                <div className="slider-value">
+                  {this.state.opacity.toFixed(2)}
+                </div>
+              </Col>
+            </Row>
+          </React.Fragment>
+        )}
+      </TabPane>
+   </Tabs>
+    )
+  }
+}
+
+
+export class Menu extends React.Component<AddProps> {
+  private graph: Graph
+  private dnd: any
+  private container: HTMLDivElement
+
+  componentDidMount() {
+   
+    const graph = new Graph({
+      container: this.container,
+      grid: true,
+      history: true,
+      snapline: {
+        enabled: true,
+        sharp: true,
+      },
+      scroller: {
+        enabled: true,
+        pageVisible: false,
+        pageBreak: false,
+        pannable: true,
+      },
+      mousewheel: {
+        enabled: true,
+        modifiers: ['ctrl', 'meta'],
+      },
+    })
+
+    const source = graph.addNode({
+      x: 130,
+      y: 30,
+      width: 100,
+      height: 40,
+      attrs: {
+        label: {
+          text: 'Hello',
+          fill: '#6a6c8a',
+        },
+        body: {
+          stroke: '#31d0c6',
+          strokeWidth: 2,
+        },
+      },
+    })
+
+    const target = graph.addNode({
+      x: 180,
+      y: 160,
+      width: 100,
+      height: 40,
+      attrs: {
+        label: {
+          text: 'World',
+          fill: '#6a6c8a',
+        },
+        body: {
+          stroke: '#31d0c6',
+          strokeWidth: 2,
+        },
+      },
+    })
+
+    graph.addEdge({ source, target })
+    graph.centerContent()
+    this.dnd = new Dnd({
+      target: graph,
+      scaled: false,
+      animation: true,
+      validateNode(droppingNode, options) {
+        return droppingNode.shape === 'html'
+          ? new Promise<boolean>((resolve) => {
+              const { draggingNode, draggingGraph } = options
+              const view = draggingGraph.findView(draggingNode)!
+              const contentElem = view.findOne('foreignObject > body > div')
+              Dom.addClass(contentElem, 'validating')
+              setTimeout(() => {
+                Dom.removeClass(contentElem, 'validating')
+                resolve(true)
+              }, 3000)
+            })
+          : true
+      },
+    })
+    this.graph = graph
+  }
+
+  startDrag = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+    console.log(e)
+    const target = e.currentTarget
+    const type = target.getAttribute('data-type')
+    const node =
+      type === 'rect'
+        ? this.graph.createNode({
+            width: 260,
+            height: 40,
+            attrs: {
+              label: {
+                text: 'Rect',
+                fill: '#6a6c8a',
+              },
+              body: {
+                stroke: '#ccc',
+                strokeWidth: 2,
+              },
+            },
+          })
+        : this.graph.createNode({
+            width: 60,
+            height: 60,
+            shape: 'html',
+            html: () => {
+              const wrap = document.createElement('div')
+              wrap.style.width = '100%'
+              wrap.style.height = '100%'
+              wrap.style.display = 'flex'
+              wrap.style.alignItems = 'center'
+              wrap.style.justifyContent = 'center'
+              wrap.style.border = '2px solid #ccc'
+              wrap.style.background = '#fff'
+              wrap.style.borderRadius = '100%'
+              wrap.innerText = 'Circle'
+              return wrap
+            },
+          })
+
+    this.dnd.start(node, e.nativeEvent as any)
+  }
+
+  refContainer = (container: HTMLDivElement) => {
+    this.container = container
+  }
+
+  render() {
+    return (
+      <div className="app">
+        <div className="dnd-wrap">
+          <div
+            data-type="rect"
+            className="dnd-rect"
+            onMouseDown={this.startDrag}
+          >
+            Rect
+          </div>
+          <div
+            data-type="circle"
+            className="dnd-circle"
+            onMouseDown={this.startDrag}
+          >
+            Circle
+          </div>
+        </div>
+        <div className="app-content" ref={this.refContainer} />
+      </div>
     )
   }
 }
