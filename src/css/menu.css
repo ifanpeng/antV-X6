@@ -1,0 +1,22 @@
+.menu {
+    display: flex;
+    height: 70px;
+    background: #001529;
+}
+
+.nav_menu {
+    padding-left: 80px;
+    flex: 7;
+    display: flex;
+    align-items: center; 
+}
+
+.nav_menu .sub1 {
+    margin-right: 80px;
+}
+
+.btn {
+    flex: 3;
+    display: flex;
+    align-items: center;
+}
