@@ -1,0 +1,9 @@
+.map {
+    margin-left: 10px;
+    height: 400px;
+}
+
+.x6-widget-minimap-viewport, .x6-widget-minimap-viewport-zoom{
+    border: 1px solid #108ee9;
+    /* display: none; */
+}

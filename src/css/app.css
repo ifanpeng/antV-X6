@@ -1,31 +1,26 @@
-.navTitle {
-    margin:0;
-    padding:0;
-    height: 74px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    letter-spacing:8px;
-    box-shadow: 0 0 10px 1px #e9e9e9;
-  }
+
 .app {
-    font-family: sans-serif;
     padding: 0;
     display: flex;
   }
   
   .app-stencil {
-    width: 350px;
+    flex: 2;
     border: 1px solid #f0f0f0;
     position: relative;
+    
   }
   
   .app-content {
-    flex: 1;
+    flex: 8;
     height: 100vh;
     margin-left: 8px;
     margin-right: 8px;
     box-shadow: 0 0 10px 1px #e9e9e9;
+  }
+
+  .opt {
+    flex: 2;
   }
   
   .x6-graph-scroller {
@@ -33,4 +28,9 @@
     border: 1px solid #f0f0f0;
     margin-left: -1px;
   }
+
+  
+.x6-graph-scroller::-webkit-scrollbar{
+  display: none;
+}
   

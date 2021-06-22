@@ -25,6 +25,12 @@ export default class Example extends React.Component {
         enabled: true,
         pannable: true,
       },
+      minimap: {
+        container: document.querySelector('.map') as HTMLDivElement,
+        enabled: true,
+        width: 400,   
+        height: 400,
+      },
       mousewheel: {
         enabled: true,
         modifiers: ['ctrl', 'meta'],
@@ -33,6 +39,8 @@ export default class Example extends React.Component {
         snap: true,
       }
     })
+    
+   
     Graph.registerNode(
       'my-rect',
       {

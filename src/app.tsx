@@ -1,11 +1,13 @@
 import React from 'react'
 import NavMenu from './conpoments/NavMenu/menu'
-import Settings from './conpoments/Settings/settings'
 import Element from './conpoments/El/el'
+import Operation from './conpoments/Operations/changeNode'
+// import Settings from './conpoments/Settings/settings'
+
 
 import { Graph } from '@antv/x6'
 import './css/app.css'
-
+import 'antd/dist/antd.css';
 
 export default class App extends React.Component {
     container: HTMLDivElement
@@ -41,17 +43,16 @@ export default class App extends React.Component {
 
     render() {
         return (
-            <div>
+            <div style={{width:'100%'}}>
                 <NavMenu />
                 <div className="app">
                     <div className="app-stencil">
                          <Element />
                     </div>
                     <div className="app-content" ref={this.refContainer} />
-                    <Settings
-                        onTypeChange={this.onGridChanged}
-                        onGridSizeChange={this.onGridSizeChanged}
-                        onBackgroundChanged={this.onBackgroundChanged} />
+                    <div className="opt">
+                        <Operation  />
+                    </div>
                 </div>
             </div>
         )
