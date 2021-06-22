@@ -4,3 +4,12 @@
    min-width: 430px;
  
 }
+.ant-card-body p{
+    display: flex;
+    height: 35px;
+    line-height: 35px;
+}
+
+.ant-card-body span {
+    margin-right: 10px;
+}

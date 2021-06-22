@@ -9,7 +9,7 @@ export default class ChangeNode extends Component {
             <div className="edit-container">
                 <div className="edit">
                     <Card title="编辑" bordered={false} style={{margin: '0 auto'}}>
-                        <Input />
+                       <p><span> Kind:</span> <Input /></p>
                     </Card>
                 </div>
                <MiniMap />

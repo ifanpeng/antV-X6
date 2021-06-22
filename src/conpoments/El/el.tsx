@@ -46,47 +46,7 @@ export default class Example extends React.Component {
       {
         inherit: 'rect',
         width: 120,
-        height: 50,
-        ports: {
-          groups: {
-            in: {
-              position: 'top',
-              label: {
-                position: 'top',
-              },
-              attrs: {
-                circle: {
-                  r: 6,
-                  magnet: true,
-                  stroke: '#31d0c6',
-                  strokeWidth: 2,
-                  fill: '#fff',
-                  style: {
-                    visibility: 'hidden',
-                  },
-                },
-              },
-            },
-            out: {
-              position: 'bottom',
-              label: {
-                position: 'bottom',
-              },
-              attrs: {
-                circle: {
-                  r: 6,
-                  magnet: true,
-                  stroke: '#31d0c6',
-                  strokeWidth: 2,
-                  fill: '#fff',
-                  style: {
-                    visibility: 'hidden',
-                  },
-                },
-              },
-            },
-          },
-        },
+        height: 50
       },
       true,
     )
@@ -141,21 +101,81 @@ export default class Example extends React.Component {
               rx: 10
             }
           },
-          ports: [
-            {
-              id: 'port1',
-              group: 'in',
-            },
-            {
-              id: 'port2',
-              group: 'out',
-            },
-          ],
+          ports:{
+              items: [
+                { group: 'in', id: 'in1' },
+                { group: 'in', id: 'in2' },
+                { group: 'out', id: 'out1' },
+                { group: 'out', id: 'out2' },
+              ],
+              groups: {
+                in: {
+                  position: { name: 'top' },
+                  zIndex: 1,
+                  attrs: {
+                    circle: {
+                      r: 4,
+                      magnet: true,
+                      stroke: '#108ee9',
+                      strokeWidth: 1,
+                      fill: '#fff',
+                    },
+                  },
+                },
+                out: {
+                  position: { name: 'bottom' },
+                  zIndex: 1,
+                  attrs: {
+                    circle: {
+                      r: 4,
+                      magnet: true,
+                      stroke: '#108ee9',
+                      strokeWidth: 1,
+                      fill: '#fff',
+                    },
+                  },
+                },
+              }
+          }
         })
         : this.graph.createNode({
           width: 60,
           height: 60,
           shape: 'html',
+          ports:{
+            items: [
+              { group: 'in', id: 'in1' },
+              { group: 'out', id: 'out1' },
+            ],
+            groups: {
+              in: {
+                position: 'top',
+                zIndex: 10,
+                attrs: {
+                  circle: {
+                    r: 4,
+                    magnet: true,
+                    stroke: '#108ee9',
+                    strokeWidth: 1,
+                    fill: '#fff',
+                  },
+                },
+              },
+              out: {
+                position: 'bottom',
+                zIndex: 10,
+                attrs: {
+                  circle: {
+                    r: 4,
+                    magnet: true,
+                    stroke: '#108ee9',
+                    strokeWidth: 1,
+                    fill: '#fff',
+                  },
+                },
+              },
+            }
+          },
           html: () => {
             const wrap = document.createElement('div')
             wrap.style.width = '100%'
@@ -170,7 +190,6 @@ export default class Example extends React.Component {
             return wrap
           },
         })
-
     this.dnd.start(node, e.nativeEvent as any)
   }
 
