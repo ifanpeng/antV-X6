@@ -6,10 +6,26 @@
 }
 .ant-card-body p{
     display: flex;
+    align-items: center;
     height: 35px;
-    line-height: 35px;
 }
 
 .ant-card-body span {
-    margin-right: 10px;
+    display: inline-block;
+    /* margin-right: 10px; */
+}
+
+.ant-form .ant-form-item:nth-child(-n+3) .ant-form-item-label{
+    text-align: left;
+    width: 70px;
+}
+
+#qualifyTeamsCount{
+    width: 178px;
+}
+.ant-card-body .ant-switch .ant-switch-inner{
+    width: 12px;
+}
+.ant-card-body .ant-input {
+    width: 250px;
 }

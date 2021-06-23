@@ -10,8 +10,42 @@ export default class Example extends React.Component {
   private dnd: any
   container: HTMLDivElement
 
+  state = {
+    stages: [
+     {
+        id: 'stage1',
+        kind: "start",
+        name: '初赛',
+        isFinal: false,
+        qualifyTeamsCount : 16
+      },
+      {
+        id: 'stage2',
+        kind: "start",
+        name: '复赛',
+        isFinal: false,
+        qualifyTeamsCount : 4
+      },
+      {
+        id: 'stage3',
+        kind: "start",
+        name: '决赛',
+        isFinal: true,
+        qualifyTeamsCount : 10
+      },
+      {
+        id:'start',
+        kind: "start",
+        name: "开始"
+      },
+      {
+        id:'end',
+        kind: "start",
+        name: "结束"
+      }
+    ] 
+  }
   componentDidMount() {
-    console.log(document.querySelector('.app-content') as HTMLDivElement);
 
     const graph = new Graph({
       container: document.querySelector('.app-content') as HTMLDivElement,
@@ -36,7 +70,10 @@ export default class Example extends React.Component {
         modifiers: ['ctrl', 'meta'],
       },
       connecting: {
-        snap: true,
+        snap: true,  // 开启自动吸附
+        allowBlank:false, // 不允许连接到空白处
+        allowMulti:'withPort', //  起始和终止节点之间可以创建多条边，但必须要要链接在不同的链接桩上
+        allowNode:false, // 是否允许边链接到节点（非节点上的链接桩)
       }
     })
     
@@ -76,25 +113,32 @@ export default class Example extends React.Component {
   }
 
   startDrag = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+    const { stages }  = this.state
     const target = e.currentTarget
     const type = target.getAttribute('data-type')!
-    const curStage = ['cs', 'fs', 'js'].indexOf(type) + 1
-    const curDate = ['start', 'end'].indexOf(type) + 1
-    const stages = ['初赛', '复赛', '决赛']
-
-    const date = ['开始', '结束']
+    console.log(type);
+    
+    const curStage = stages.find(obj => obj.id === type)
+    console.log(curStage);
+    
     const node =
-      curStage
-        ? this.graph.createNode({
+      curStage?.hasOwnProperty('isFinal') ? this.graph.createNode({
           width: 100,
           height: 50,
           shape:'my-rect',
+          connector: {
+            name: 'rounded',
+            args: {
+              radius: 20,
+            },
+          },
           attrs: {
             label: {
-              text: stages[curStage - 1],
+              text: curStage.name,
               fill: '#6a6c8a',
             },
             body: {
+              id: curStage.id,
               stroke: '#108ee9',
               strokeWidth: 1,
               ry: 10,
@@ -119,7 +163,7 @@ export default class Example extends React.Component {
                       stroke: '#108ee9',
                       strokeWidth: 1,
                       fill: '#fff',
-                    },
+                    }
                   },
                 },
                 out: {
@@ -178,6 +222,7 @@ export default class Example extends React.Component {
           },
           html: () => {
             const wrap = document.createElement('div')
+            wrap.id = ''
             wrap.style.width = '100%'
             wrap.style.height = '100%'
             wrap.style.display = 'flex'
@@ -186,7 +231,7 @@ export default class Example extends React.Component {
             wrap.style.border = '1px solid #108ee9'
             wrap.style.background = '#fff'
             wrap.style.borderRadius = '100%'
-            wrap.innerText = date[curDate - 1]
+            wrap.innerText = curStage?.name as string
             return wrap
           },
         })
@@ -198,7 +243,7 @@ export default class Example extends React.Component {
       <div>
         <div className="dnd-wrap">
           <div
-            data-type="cs"
+            data-type="stage1"
             className="dnd-rect"
             onMouseDown={this.startDrag}
           >
@@ -206,7 +251,7 @@ export default class Example extends React.Component {
           </div>
 
           <div
-            data-type="fs"
+            data-type="stage2"
             className="dnd-rect"
             onMouseDown={this.startDrag}
           >
@@ -215,7 +260,7 @@ export default class Example extends React.Component {
 
 
           <div
-            data-type="js"
+            data-type="stage3"
             className="dnd-rect"
             onMouseDown={this.startDrag}
           >
