@@ -7,13 +7,16 @@ const { Dnd } = Addon
 interface IProps{
   stages: Array<IStage>
   onCheckedStage: (curStage:object|undefined,cell:any) => void
+  saveDragNode: (node:object) => void
 }
 
 
 export default class DragElement extends React.Component<IProps>{
   private graph: Graph
   private dnd: any
-
+  state = {
+    curStage:{}
+  }
   componentDidMount() {
     
     const graph = new Graph({
@@ -46,7 +49,6 @@ export default class DragElement extends React.Component<IProps>{
       }
     })
     
-   
     Graph.registerNode(
       'my-rect',
       {
@@ -57,10 +59,18 @@ export default class DragElement extends React.Component<IProps>{
       true,
     )
     graph.centerContent()
+    const that = this
     this.dnd = new Dnd({
       target: graph,
       scaled: false,
-      animation: true
+      animation: true,
+      // 检测节点是否成功放到指定容器
+      validateNode(node:any){
+        const idd = 0
+        // const { id }  = node.store.data.attrs.body
+        that.props.saveDragNode(Object.assign({},that.state.curStage,{idd:idd+1}))
+       return true
+      }
     })
     this.graph = graph
 
@@ -85,16 +95,16 @@ export default class DragElement extends React.Component<IProps>{
       const curStage = stages.find(obj => obj.id  === id) 
         this.props.onCheckedStage(curStage,cell)
       })
-    
   }
   
-  startDrag = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
-
+    startDrag = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
     const { stages }  = this.props
     const target = e.currentTarget
     
     const type = target.getAttribute('data-type')!
-    const curStage = stages.find(obj => obj.id  === type) 
+    const curStage = stages.find(obj => obj.id  === type)! 
+    this.setState({curStage})
+    this.props.onCheckedStage(curStage,null)
     const node =
       curStage?.hasOwnProperty('isFinal') ? this.graph.createNode({
           width: 100,

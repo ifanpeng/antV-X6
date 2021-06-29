@@ -15,16 +15,17 @@ export interface IStage{
     qualifyTeamsCount? : number
   }
 
-interface IStates{
+export interface Stages{
     stages: Array<IStage>,
     curStage:object,
-    cell:any
+    cell:any,
+    dragList:Array<IStage>,
  }
 
 export default class App extends React.Component {
     container: HTMLDivElement
     private graph: Graph
-    state:IStates = {
+    state:Stages = {
         stages: [
          {
             id: 'stage1',
@@ -58,7 +59,8 @@ export default class App extends React.Component {
             name: "结束"
           }
         ],
-        curStage:{},
+        dragList:[],
+        curStage:{}, 
         cell:null
       }
     refContainer = (container: HTMLDivElement) => {
@@ -79,13 +81,24 @@ export default class App extends React.Component {
     onBackgroundChanged = (options: Graph.BackgroundManager.Options) =>  this.graph.drawBackground(options)
 
     onCheckedStage = (curStage:object|undefined,cell:any) => this.setState({curStage,cell})
-    handleStage = (key:string,value:any)=> {
+
+    // 编辑单点点击的节点
+    handleStage = (key:string,value:any )=> {
        this.setState((state:any) => {
           return {
             curStage : Object.assign({},state.curStage,{[key]:value})
           }
        })
     }
+    // 用来保存新增的节点
+    saveDragNode = (node:object|undefined):void =>{
+      console.log(node);
+      
+      this.setState({
+        dragList:[node,...this.state.dragList]
+      })
+    }
+  
     render() {
         /**
          * @children NavMenu 导航条
@@ -98,14 +111,18 @@ export default class App extends React.Component {
                 <NavMenu />
                 <div className="app">
                     <div className="app-stencil">
-                         <DragElement stages={stages} onCheckedStage={this.onCheckedStage} />
+                         <DragElement 
+                         stages={stages} 
+                         onCheckedStage={this.onCheckedStage}
+                         saveDragNode={this.saveDragNode}
+                          />
                     </div>
                     <div className="app-content" ref={this.refContainer} />
                     <div className="opt">
                         <Operation 
-                        curStage={curStage}
-                        cell={cell}
-                        handleStage={this.handleStage}
+                          curStage={curStage}
+                          cell={cell}
+                          handleStage={this.handleStage}
                         />
                     </div>
                 </div>
