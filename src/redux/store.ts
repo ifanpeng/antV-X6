@@ -1,4 +1,10 @@
-import { createStore } from 'redux'
-import nodeReducer from './node_reducer'
+import { createStore, combineReducers} from 'redux'
+import nodeReducer from './reducers/addNode'
+import editReducer from './reducers/editNode'
 
-export default createStore(nodeReducer)
+// 汇总reducer
+const AllReducer = combineReducers({
+    nodeReducer,
+    editReducer
+})
+export default createStore(AllReducer)

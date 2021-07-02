@@ -1,57 +1,43 @@
 import React, { Component } from 'react'
+import { connect } from 'react-redux'
 import MiniMap from './miniMap'
+import { editStage } from '../../redux/actions/edit'
+
 import '../../css/changeNode.css'
 import { Card, Input, Switch, Form,Empty  } from 'antd';
 
 interface IProps{
-    curStage:any,
-    cell:any,
-    handleStage:(key:string,value:any) => void
+    curStage: object|null
 }
-
-export default class ChangeNode extends Component<IProps> {
+class ChangeNode extends Component<IProps> {
     formRef:any = React.createRef()
     componentDidUpdate(){
-        const { curStage } = this.props
-        this.formRef.current.setFieldsValue(curStage)
+        this.formRef.current.setFieldsValue(this.props.curStage)
     }
     // 初始化form表单
     setFrom = (key:string, value:any) => {
-        const curStage = Object.assign({}, this.props.curStage, { [key]: value })
-        this.formRef.current.setFieldsValue(curStage)
-        this.setState({curStage})
     }
     // 修改是否必填
     onChangedFinal = (key:string) => {
-       return (e: boolean) => {
-        this.formRef.current.resetFields(['qualifyTeamsCount'])
-        this.setFrom('isFinal',e)
-        this.props.handleStage(key,e)
-       }
+      return () => {}
     }
     // 修改符合要求的战队数量
     onChangedCount = (key:string) => {
        return (e:any) => {
             if(/[^\d]/g.test(e.target.value)) return this.formRef.current.resetFields(['qualifyTeamsCount'])
             this.setFrom('qualifyTeamsCount',e.target.value * 1)
-            this.props.handleStage(key,e.target.value )
        }
     }
    
     // 修改name
     onChangeName = (key:string) => {
        return (e:any) => {
-        this.props.handleStage(key,e.target.value )
-        this.props.cell.attr({
-            label: { 
-                text: e.target.value 
-            }
-          })
+       
+       
        }
     }
     render() {
-        const { curStage } = this.props
-        const isShow = JSON.stringify(curStage) === '{}'
+        const isShow = JSON.stringify(this.props.curStage) === '{}'
         return (
             <div className="edit-container">
                 <div className="edit">
@@ -59,7 +45,7 @@ export default class ChangeNode extends Component<IProps> {
                             <Form
                             style={{display: isShow ? 'none' :  'block'}}
                               ref={this.formRef}
-                              initialValues={curStage}
+                              initialValues={this.props.curStage!}
                               >
                                 <Form.Item
                                     label="Kind："
@@ -74,18 +60,18 @@ export default class ChangeNode extends Component<IProps> {
                                    <Input onChange={this.onChangeName('name')} />
                                 </Form.Item>
                               {
-                                curStage.hasOwnProperty('isFinal') ?
+                                this.props.hasOwnProperty('isFinal') ?
                                   <>
                                     <Form.Item
                                     label="isFinal："
                                     name="isFinal"
                                 >
-                                    <Switch onChange={this.onChangedFinal('isFinal')} checked={curStage.isFinal} />
+                                    <Switch onChange={this.onChangedFinal('isFinal')} checked={true} />
                                 </Form.Item>
                                 <Form.Item
                                     label="qualifyTeamsCount："
                                     name="qualifyTeamsCount"
-                                    rules={[{ required: curStage.isFinal, message: '必填项' }]}
+                                    rules={[{ required: false, message: '必填项' }]}
                                 >
                                     <Input onChange={this.onChangedCount('qualifyTeamsCount')} />
                                 </Form.Item>
@@ -101,3 +87,14 @@ export default class ChangeNode extends Component<IProps> {
         )
     }
 }
+
+export default connect(
+    (state:any) => {
+        console.log(state);
+        
+        return {curStage : state.editReducer.curStage}
+    },
+   {
+    editStage
+   }
+)(ChangeNode)

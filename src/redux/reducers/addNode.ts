@@ -1,5 +1,5 @@
-import { ADD_DRAG_LIST } from './constants'
-import { Stages } from '../app'
+import { ADD_DRAG_LIST } from '../constant'
+import { Stages } from '../../app'
 
 export interface Action {
     type: string,
@@ -45,11 +45,13 @@ const initState:Stages = {
 
 function nodeReducer(state = initState, action : Action) : any {
     const { type , data } = action
+    console.log(data);
+    
     switch (type) {
         case ADD_DRAG_LIST:
             return [data,...state.dragList]
         default:
-            break;
+            return initState
     }
 }
 export default nodeReducer 

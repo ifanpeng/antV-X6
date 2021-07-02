@@ -1,24 +1,22 @@
 import React from 'react'
+import { connect } from 'react-redux'
 import { Graph, Addon } from '@antv/x6'
-import { IStage } from '../../app'
 import '../../css/el.css'
+import { IStage } from '../../app'
+import { addDragList } from '../../redux/actions/drag'
 const { Dnd } = Addon
 
 interface IProps{
-  stages: Array<IStage>
-  onCheckedStage: (curStage:object|undefined,cell:any) => void
-  saveDragNode: (node:object) => void
+  stageList:any,
+  curStage:any,
+  addDragList: (data:IStage) => void
 }
 
 
-export default class DragElement extends React.Component<IProps>{
+class DragElement extends React.Component<IProps>{
   private graph: Graph
   private dnd: any
-  state = {
-    curStage:{}
-  }
   componentDidMount() {
-    
     const graph = new Graph({
       container: document.querySelector('.app-content') as HTMLDivElement,
       grid: true,
@@ -58,17 +56,17 @@ export default class DragElement extends React.Component<IProps>{
       },
       true,
     )
-    graph.centerContent()
     const that = this
+    graph.centerContent()
     this.dnd = new Dnd({
       target: graph,
       scaled: false,
       animation: true,
       // 检测节点是否成功放到指定容器
       validateNode(node:any){
-        const idd = 0
+        // const idd = 0
         // const { id }  = node.store.data.attrs.body
-        that.props.saveDragNode(Object.assign({},that.state.curStage,{idd:idd+1}))
+        that.props.addDragList(that.props.curStage)
        return true
       }
     })
@@ -91,21 +89,16 @@ export default class DragElement extends React.Component<IProps>{
     })
     graph.on('node:click', ({cell}) => {
       const { id } = cell.attr().body
-      const { stages }  = this.props
-      const curStage = stages.find(obj => obj.id  === id) 
-        this.props.onCheckedStage(curStage,cell)
+      console.log(id)
+      
       })
   }
-  
     startDrag = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
-    const { stages }  = this.props
-    const target = e.currentTarget
-    
-    const type = target.getAttribute('data-type')!
-    const curStage = stages.find(obj => obj.id  === type)! 
-    this.setState({curStage})
-    this.props.onCheckedStage(curStage,null)
-    const node =
+      const stages  = this.props.stageList
+      const target = e.currentTarget
+      const type = target.getAttribute('data-type')
+      const curStage = stages.find((obj:IStage) => obj.id  === type)
+      const node =
       curStage?.hasOwnProperty('isFinal') ? this.graph.createNode({
           width: 100,
           height: 50,
@@ -271,3 +264,13 @@ export default class DragElement extends React.Component<IProps>{
     )
   }
 }
+
+export default connect(
+  (state:any) => ({
+    stageList: state.nodeReducer.stages,
+    curStage: state.editReducer
+  }),
+  {
+    addDragList
+  }
+)(DragElement)
